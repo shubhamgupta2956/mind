@@ -7,9 +7,14 @@ func init() {
 		slackAuthCmd,
 	)
 
+	todoistCmd.AddCommand(
+		todoistAuthCmd,
+	)
+
 	rootCmd.AddCommand(
 		configureCmd,
 		slackCmd,
+		todoistCmd,
 	)
 }
 
