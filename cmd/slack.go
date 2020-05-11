@@ -35,3 +35,30 @@ var slackAuthCmd = &cobra.Command{
 		}
 	},
 }
+
+var slackSendCmd = &cobra.Command{
+	Use:   "send [channel name] [message]",
+	Short: "Send message to slack workspace channel",
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if len(args) != 2 {
+			logrus.Fatalln("Invalid number of arguments. Requires two.")
+		}
+	},
+
+	Run: func(cmd *cobra.Command, args []string) {
+		conf, err := pkg.LoadConfig()
+		if err != nil {
+			logrus.WithError(err).Fatalln("Cannot load config")
+		}
+
+		channel := args[0]
+		message := args[1]
+
+		if err := pkg.SendMessage(channel, message, conf.SlackToken); err != nil {
+			logrus.WithError(err).Fatalln("Cannot fetch messages")
+		}
+
+		logrus.Infoln("Message sent successfully")
+	},
+}

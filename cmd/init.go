@@ -5,6 +5,7 @@ import "github.com/sirupsen/logrus"
 func init() {
 	slackCmd.AddCommand(
 		slackAuthCmd,
+		slackSendCmd,
 	)
 
 	todoistCmd.AddCommand(
