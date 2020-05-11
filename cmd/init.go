@@ -21,10 +21,15 @@ func init() {
 		todoistTodayCmd,
 	)
 
+	sessionCmd.AddCommand(
+		sessionSummaryCmd,
+	)
+
 	rootCmd.AddCommand(
 		configureCmd,
 		slackCmd,
 		todoistCmd,
+		sessionCmd,
 	)
 }
 
