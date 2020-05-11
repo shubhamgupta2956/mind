@@ -41,6 +41,7 @@
     $ mind todoist auth # authorize todoist
     ```
     You'll be prompted with a URL. It's the authorization URL. Visit the URL and authorize Mind for your workspace/account.
+    Also the redirectURL is hardcoded as `http://127.0.0.1:12345`.
 
 1. To send messages on Slack, use `send` command.
     ```bash
