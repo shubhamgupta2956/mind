@@ -3,8 +3,13 @@ package cmd
 import "github.com/sirupsen/logrus"
 
 func init() {
+	slackCmd.AddCommand(
+		slackAuthCmd,
+	)
+
 	rootCmd.AddCommand(
 		configureCmd,
+		slackCmd,
 	)
 }
 

@@ -24,7 +24,9 @@ var (
 
 // Config represents the configuration file.
 type Config struct {
-	OutputType string `json:"output_type"`
+	OutputType   string `json:"output_type,omitempty"`
+	SlackToken   string `json:"slack_token,omitempty"`
+	TodoistToken string `json:"todoist_token,omitempty"`
 }
 
 func init() {

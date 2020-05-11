@@ -1,0 +1,7 @@
+#/bin/bash
+
+SLACK_CLIENT_ID="<slack client id>"
+SLACK_CLIENT_SECRET="<slack client secret>"
+
+TODOIST_CLIENT_ID="<todoist client id>"
+TODOIST_CLIENT_SECRET="<todoist client secret>"
