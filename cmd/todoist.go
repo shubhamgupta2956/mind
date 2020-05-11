@@ -61,3 +61,29 @@ var todoistAddCmd = &cobra.Command{
 		logrus.Infoln("Task added successfully")
 	},
 }
+
+var todoistTodayCmd = &cobra.Command{
+	Use:   "today",
+	Short: "Fetch today's tasks from todoist",
+
+	Run: func(cmd *cobra.Command, args []string) {
+		conf, err := pkg.LoadConfig()
+		if err != nil {
+			logrus.WithError(err).Fatalln("Cannot load config")
+		}
+
+		tasks, err := pkg.GetTasks(conf.TodoistToken)
+		if err != nil {
+			logrus.WithError(err).Fatalln("Cannot fetch tasks")
+		}
+
+		if len(tasks) == 0 {
+			logrus.Warnln("No tasks for today")
+			return
+		}
+
+		for _, t := range tasks {
+			logrus.Infoln(t)
+		}
+	},
+}

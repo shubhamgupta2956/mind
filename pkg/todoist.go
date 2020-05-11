@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/shubhamgupta2956/mind"
@@ -129,4 +130,37 @@ func AddTask(token, task string) error {
 	}
 
 	return nil
+}
+
+// GetTasks gets today's tasks from todoist.
+func GetTasks(token string) ([]string, error) {
+	uuid := randomToken()
+
+	data, err := makeTodoistPostRequest(token, uuid, "", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := struct {
+		Items []struct {
+			Content string      `json:"content"`
+			Due     interface{} `json:"due"`
+		} `json:"items"`
+	}{}
+
+	if err := json.Unmarshal(data, &resp); err != nil {
+		return nil, err
+	}
+
+	dateToday := time.Now().Format(DateLayout)
+	tasks := []string{}
+
+	for _, item := range resp.Items {
+		dueDate, ok := item.Due.(map[string]interface{})
+		if ok && strings.HasPrefix(dueDate["date"].(string), dateToday) {
+			tasks = append(tasks, item.Content)
+		}
+	}
+
+	return tasks, nil
 }
