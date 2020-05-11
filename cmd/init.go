@@ -17,6 +17,7 @@ func init() {
 
 	todoistCmd.AddCommand(
 		todoistAuthCmd,
+		todoistAddCmd,
 	)
 
 	rootCmd.AddCommand(
