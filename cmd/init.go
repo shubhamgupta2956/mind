@@ -1,15 +1,11 @@
 package cmd
 
-import (
-	"github.com/sirupsen/logrus"
-)
-
-var (
-	messageLimit uint
-)
+import "github.com/sirupsen/logrus"
 
 func init() {
-	logrus.SetLevel(logrus.DebugLevel)
+	rootCmd.AddCommand(
+		configureCmd,
+	)
 }
 
 // Execute starts the command line tool.
