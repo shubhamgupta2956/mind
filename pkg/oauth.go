@@ -82,7 +82,7 @@ func RunAuthCmd(auth MindAuth, tokenToUpdate *string) {
 
 	token, err := serveAndFetchToken(auth, state)
 	if err != nil {
-		logrus.WithError(err).Fatalln("Error closing server")
+		logrus.WithError(err).Errorln("Error closing server")
 	}
 
 	*tokenToUpdate = token
