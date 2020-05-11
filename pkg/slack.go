@@ -137,3 +137,101 @@ func SendMessage(channel, message, token string) error {
 
 	return nil
 }
+
+func fetchUsersMap(client *http.Client, token string) (map[string]string, error) {
+	users := map[string]string{
+		"": "slack",
+	}
+
+	usersInfoURL := fmt.Sprintf("https://slack.com/api/users.list?token=%s", token)
+	uinfo, err := client.Get(usersInfoURL)
+	if err != nil {
+		return nil, err
+	}
+	defer uinfo.Body.Close()
+
+	data, err := ioutil.ReadAll(uinfo.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	usersInfo := struct {
+		OK    bool `json:"ok"`
+		Users []struct {
+			ID   string `json:"ID"`
+			Name string `json:"name"`
+		} `json:"members"`
+	}{}
+
+	if err := json.Unmarshal(data, &usersInfo); err != nil {
+		return nil, err
+	}
+
+	if !usersInfo.OK {
+		return nil, fmt.Errorf("failed to fetch users info")
+	}
+
+	for _, u := range usersInfo.Users {
+		users[u.ID] = u.Name
+	}
+
+	return users, nil
+}
+
+// SlackMessage is an instance of mwssage from slack.
+type SlackMessage struct {
+	User      string `json:"user"`
+	Text      string `json:"text"`
+	TimeStamp string `json:"ts"`
+}
+
+// FetchMessages gets the unread messages from slack.
+func FetchMessages(channel string, limit uint, token string) ([]*SlackMessage, error) {
+	client := slackConf.Client(context.Background(), &oauth2.Token{AccessToken: token})
+
+	channelID, err := fetchChannelID(client, token, channel)
+	if err != nil {
+		return nil, err
+	}
+
+	users, err := fetchUsersMap(client, token)
+	if err != nil {
+		return nil, err
+	}
+
+	messageLimit := uint(20)
+	if limit != 0 {
+		messageLimit = limit
+	}
+
+	messageInfoURL := fmt.Sprintf("https://slack.com/api/conversations.history?token=%s&channel=%s&limit=%d", token, channelID, messageLimit)
+	minfo, err := client.Get(messageInfoURL)
+	if err != nil {
+		return nil, err
+	}
+	defer minfo.Body.Close()
+
+	data, err := ioutil.ReadAll(minfo.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	messagesInfo := struct {
+		OK       bool            `json:"ok"`
+		Messages []*SlackMessage `json:"messages"`
+	}{}
+
+	if err := json.Unmarshal(data, &messagesInfo); err != nil {
+		return nil, err
+	}
+
+	if !messagesInfo.OK {
+		return nil, fmt.Errorf("failed to fetch messages")
+	}
+
+	for _, m := range messagesInfo.Messages {
+		m.User = users[m.User]
+	}
+
+	return messagesInfo.Messages, nil
+}

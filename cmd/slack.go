@@ -62,3 +62,38 @@ var slackSendCmd = &cobra.Command{
 		logrus.Infoln("Message sent successfully")
 	},
 }
+
+var slackUnreadCmd = &cobra.Command{
+	Use:   "unreads [channel name]",
+	Short: "Get unread messages from slack workspace",
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if len(args) != 1 {
+			logrus.Fatalln("Invalid number of arguments. Requires one.")
+		}
+	},
+
+	Run: func(cmd *cobra.Command, args []string) {
+		conf, err := pkg.LoadConfig()
+		if err != nil {
+			logrus.WithError(err).Fatalln("Cannot load config")
+		}
+
+		channel := args[0]
+
+		messages, err := pkg.FetchMessages(channel, messageLimit, conf.SlackToken)
+		if err != nil {
+			logrus.WithError(err).Fatalln("Cannot fetch messages")
+		}
+
+		if len(messages) == 0 {
+			logrus.Warnln("No messages found in the cannel")
+			return
+		}
+
+		for _, message := range messages {
+			logrus.WithField("user", message.User).WithField(
+				"timestamp", message.TimeStamp).Infoln(message.Text)
+		}
+	},
+}
